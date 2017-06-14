@@ -1,1 +1,1 @@
-worker: java -jar target/discord-raid-bot-kotlin-1.0-SNAPSHOT.jar
+web: java -jar -Dserver.port=$PORT target/discord-raid-bot-kotlin-1.0-SNAPSHOT.jar
