@@ -1,5 +1,6 @@
 package com.fingolfintek.handler
 
+import com.fingolfintek.ocr.TotalDamageResolver
 import com.fingolfintek.session.RaidSessions
 import net.dv8tion.jda.core.entities.Message
 import org.springframework.stereotype.Component
@@ -15,7 +16,7 @@ open class AttachmentDamageResolvingHandler(
   override fun processMessage(message: Message) {
     message.attachments
         .filter { it.isImage }
-        .forEach { processDamageReportFor(message, it.url) }
+        .forEach { processDamageReportFor(message, it.url, message.content.toUpperCase()) }
   }
 
 

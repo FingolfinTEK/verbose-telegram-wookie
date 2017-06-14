@@ -1,5 +1,6 @@
 package com.fingolfintek.handler
 
+import com.fingolfintek.ocr.TotalDamageResolver
 import com.fingolfintek.session.RaidSessions
 import net.dv8tion.jda.core.entities.Message
 import java.io.File
@@ -12,8 +13,7 @@ abstract class BaseDamageResolvingHandler(
       "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) " +
           "Chrome/23.0.1271.95 Safari/537.11"
 
-  protected fun processDamageReportFor(message: Message, imageUrl: String) {
-    val sessionName = message.content.toUpperCase()
+  protected fun processDamageReportFor(message: Message, imageUrl: String, sessionName: String) {
     raidSessions
         .attributeDamage(sessionName, message.author.name, { resolveDamageFor(imageUrl) })
         .onFailure { sendUnknownRaidMessageFor(message, sessionName) }
@@ -40,6 +40,6 @@ abstract class BaseDamageResolvingHandler(
   }
 
   private fun sendUnknownRaidMessageFor(message: Message, sessionName: String) {
-    message.channel.sendMessage("Unknown raid $sessionName")
+    message.channel.sendMessage("Unknown raid $sessionName").queue()
   }
 }

@@ -1,5 +1,6 @@
 package com.fingolfintek.handler
 
+import com.fingolfintek.ocr.TotalDamageResolver
 import com.fingolfintek.session.RaidSessions
 import net.dv8tion.jda.core.entities.EmbedType
 import net.dv8tion.jda.core.entities.Message
@@ -16,7 +17,10 @@ open class EmbedDamageResolvingHandler(
   override fun processMessage(message: Message) {
     message.embeds
         .filter { it.type == EmbedType.IMAGE }
-        .forEach { processDamageReportFor(message, it.url) }
+        .forEach {
+          val sessionName = message.content.replace(it.url, "").trim().toUpperCase()
+          processDamageReportFor(message, it.url, sessionName)
+        }
   }
 
 
