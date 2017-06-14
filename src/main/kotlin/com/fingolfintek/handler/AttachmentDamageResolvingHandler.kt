@@ -15,7 +15,7 @@ open class AttachmentDamageResolvingHandler(
   override fun processMessage(message: Message) {
     message.attachments
         .filter { it.isImage }
-        .forEach { processDamageReportFor(message, it.proxyUrl) }
+        .forEach { processDamageReportFor(message, it.url) }
   }
 
 

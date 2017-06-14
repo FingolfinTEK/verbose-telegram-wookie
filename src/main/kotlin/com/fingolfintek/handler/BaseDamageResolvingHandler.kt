@@ -7,19 +7,20 @@ import java.net.URL
 
 abstract class BaseDamageResolvingHandler(
     val raidSessions: RaidSessions, val damageResolver: TotalDamageResolver) : MessageHandler {
-  
+
   private val mozzilaAgent =
       "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) " +
           "Chrome/23.0.1271.95 Safari/537.11"
 
   protected fun processDamageReportFor(message: Message, imageUrl: String) {
-    val damage = resolveDamageFor(imageUrl)
-    raidSessions.attributeDamage(
-        message.content.toUpperCase(),
-        message.author.name,
-        damage)
-    val damageMessage = "Resolved damage was $damage"
-    message.channel.sendMessage(damageMessage).queue()
+    val sessionName = message.content.toUpperCase()
+    raidSessions
+        .attributeDamage(sessionName, message.author.name, { resolveDamageFor(imageUrl) })
+        .onFailure { sendUnknownRaidMessageFor(message, sessionName) }
+        .onSuccess {
+          val damageMessage = "Resolved damage was $it"
+          message.channel.sendMessage(damageMessage).queue()
+        }
   }
 
   private fun resolveDamageFor(url: String): Int {
@@ -36,5 +37,9 @@ abstract class BaseDamageResolvingHandler(
     val connection = URL(url).openConnection()
     connection.setRequestProperty("User-Agent", mozzilaAgent)
     connection.getInputStream().copyTo(tempFile.outputStream())
+  }
+
+  private fun sendUnknownRaidMessageFor(message: Message, sessionName: String) {
+    message.channel.sendMessage("Unknown raid $sessionName")
   }
 }

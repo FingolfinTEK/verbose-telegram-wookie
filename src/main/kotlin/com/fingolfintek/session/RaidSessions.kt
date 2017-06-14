@@ -32,18 +32,21 @@ open class RaidSessions {
     }.toTry()
   }
 
-  fun attributeDamage(sessionName: String, user: String, damage: Int): Try<Session> {
+  fun attributeDamage(
+      sessionName: String, user: String, damageProcessor: () -> Int): Try<Int> {
     return doWithSessions {
       it.get(sessionName)
           .orElse {
             if (sessionName.isBlank()) firstStillValidSession() else Option.none()
           }
-          .peek {
+          .map {
             val damagesByUsers = it.damagesByUsers
+            val damage = damageProcessor.invoke()
             it.damagesByUsers = damagesByUsers.get(user)
                 .orElse { Option.of(List.empty()) }
                 .map { damagesByUsers.put(user, it.push(damage)) }
                 .get()
+            damage
           }
     }.toTry()
   }

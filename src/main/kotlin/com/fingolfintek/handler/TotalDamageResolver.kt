@@ -26,7 +26,8 @@ open class TotalDamageResolver {
   }
 
   fun resolveDamageFrom(imagePath: String): Int {
-    val image = lept.pixRead(imagePath)
+    val originalImage = lept.pixRead(imagePath)
+    val image = lept.pixStrokeWidthTransform(originalImage, 0, originalImage.d(), 2)
     try {
       val damage = parseDamageFrom(image)
       return Integer.parseInt(damage)
