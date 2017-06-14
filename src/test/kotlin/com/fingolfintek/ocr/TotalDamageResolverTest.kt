@@ -6,19 +6,26 @@ import org.junit.Test
 
 class TotalDamageResolverTest {
 
-    lateinit var resolver: TotalDamageResolver
+  lateinit var resolver: TotalDamageResolver
 
-    @Before
-    fun setUp() {
-        resolver = TotalDamageResolver()
-        resolver.initialize()
-    }
+  @Before
+  fun setUp() {
+    resolver = TotalDamageResolver()
+    resolver.initialize()
+  }
 
-    @Test
-    fun resolveDamageFrom() {
-        val resource = TotalDamageResolver::class.java.getResource("/screenshot.png")
-        val damage = resolver.resolveDamageFrom(resource.file)
-        Assertions.assertThat(damage).isEqualTo(359668)
-    }
+  @Test
+  fun resolveDamageFrom() {
+    expectDamageForImage("/screenshot.png", 359668)
+    expectDamageForImage("/screenshot_2.png", 9590)
+    expectDamageForImage("/screenshot_3.png", 9456)
+    expectDamageForImage("/screenshot_4.jpeg", 8579)
+  }
+
+  private fun expectDamageForImage(path: String, expectedDamage: Int) {
+    val resource = TotalDamageResolver::class.java.getResource(path)
+    val resolvedDamage = resolver.resolveDamageFrom(resource.file)
+    Assertions.assertThat(resolvedDamage).isEqualTo(expectedDamage)
+  }
 
 }

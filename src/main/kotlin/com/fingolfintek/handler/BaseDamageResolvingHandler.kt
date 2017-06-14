@@ -2,6 +2,7 @@ package com.fingolfintek.handler
 
 import com.fingolfintek.ocr.TotalDamageResolver
 import com.fingolfintek.session.RaidSessions
+import com.fingolfintek.util.using
 import net.dv8tion.jda.core.entities.Message
 import java.io.File
 import java.net.URL
@@ -34,9 +35,13 @@ abstract class BaseDamageResolvingHandler(
   }
 
   private fun downloadImage(url: String, tempFile: File) {
-    val connection = URL(url).openConnection()
-    connection.setRequestProperty("User-Agent", mozzilaAgent)
-    connection.getInputStream().copyTo(tempFile.outputStream())
+    using {
+      val connection = URL(url).openConnection()
+      connection.setRequestProperty("User-Agent", mozzilaAgent)
+      val input = connection.getInputStream().autoClose()
+      val output = tempFile.outputStream().autoClose()
+      input.copyTo(output)
+    }
   }
 
   private fun sendUnknownRaidMessageFor(message: Message, sessionName: String) {
