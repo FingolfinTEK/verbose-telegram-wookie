@@ -41,13 +41,19 @@ open class TotalDamageResolver {
       lept.pixConvertTo1(this, 128)
 
   fun resolveDamageFrom(imagePath: String): Int {
-    return using {
+    using {
+      val bitwiseImage = loadAndPrepareImageForOCR(imagePath).autoClose { cleanup() }
+      val damage = parseDamageFrom(bitwiseImage)
+      return Integer.parseInt(damage)
+    }
+  }
+
+  private fun loadAndPrepareImageForOCR(imagePath: String): lept.PIX {
+    using {
       val image = lept.pixRead(imagePath).autoClose { cleanup() }
       val croppedImage = image.imageWithoutContinueButton().autoClose { cleanup() }
       val scaledImage = croppedImage.scaledForOCR().autoClose { cleanup() }
-      val bitwiseImage = scaledImage.asBlackAndWhite().autoClose { cleanup() }
-      val damage = parseDamageFrom(bitwiseImage)
-      Integer.parseInt(damage)
+      return scaledImage.asBlackAndWhite()
     }
   }
 

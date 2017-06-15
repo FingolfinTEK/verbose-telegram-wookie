@@ -37,7 +37,7 @@ open class RaidSessions {
     return doWithSessions {
       it.get(sessionName)
           .orElse {
-            if (sessionName.isBlank()) firstStillValidSession() else Option.none()
+            if (sessionName.isNullOrBlank()) firstStillValidSession() else Option.none()
           }
           .map {
             val damagesByUsers = it.damagesByUsers
