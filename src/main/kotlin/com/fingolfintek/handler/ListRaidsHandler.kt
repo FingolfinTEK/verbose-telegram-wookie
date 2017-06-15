@@ -1,13 +1,12 @@
 package com.fingolfintek.handler
 
-import com.fingolfintek.session.RaidSessions
+import com.fingolfintek.session.ChannelSessions
 import com.fingolfintek.session.Session
-import io.vavr.collection.LinkedHashMap
 import net.dv8tion.jda.core.entities.Message
 import org.springframework.stereotype.Component
 
 @Component
-open class ListRaidsHandler(val raidSessions: RaidSessions) : MessageHandler {
+open class ListRaidsHandler(val raidSessions: ChannelSessions) : MessageHandler {
 
   private val messageRegex = "!r(aid)? (list|show)( all)?".toRegex()
 
@@ -15,19 +14,20 @@ open class ListRaidsHandler(val raidSessions: RaidSessions) : MessageHandler {
       message.content.matches(messageRegex)
 
   override fun processMessage(message: Message) {
-    raidSessions.doWithSessions {
-      when {
-        it.nonEmpty() -> sendRaidReportFor(it, message)
-        else -> sendNoActiveRaidsMessageFor(message)
+    raidSessions.doWithSessions(message, {
+      it.doWithSessions {
+        when {
+          it.isNotEmpty() -> sendRaidReportFor(it, message)
+          else -> sendNoActiveRaidsMessageFor(message)
+        }
       }
-    }
+    })
   }
 
   private fun sendRaidReportFor(sessions: LinkedHashMap<String, Session>, message: Message) {
-    val raidReport = sessions.toStream()
-        .map {
-          "${it._1} - users registered: ${it._2.damagesByUsers.size()}, ends ${it._2.validUntil}"
-        }.mkString("\n")
+    val raidReport = sessions.map {
+      "${it.key} - users registered: ${it.value.damagesByUsers.size}, ends ${it.value.validUntil}"
+    }.joinToString("\n")
     return message.channel.sendMessage("Active raids:\n$raidReport").queue()
   }
 

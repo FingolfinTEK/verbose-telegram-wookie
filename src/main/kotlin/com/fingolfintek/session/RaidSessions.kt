@@ -1,21 +1,15 @@
 package com.fingolfintek.session
 
-import io.vavr.collection.LinkedHashMap
-import io.vavr.collection.List
 import io.vavr.control.Option
 import io.vavr.control.Try
-import org.springframework.stereotype.Component
 import java.time.ZonedDateTime.now
 
-@Component
-open class RaidSessions {
-  var sessions: LinkedHashMap<String, Session> = LinkedHashMap.empty<String, Session>()
+open class RaidSessions(raids: Map<String, Session> = HashMap()) {
+  var sessions: LinkedHashMap<String, Session> = LinkedHashMap(raids)
 
   fun startSession(name: String): Try<Session> {
     return doWithSessions {
-      val session = Session()
-      sessions = it.put(name, session)
-      Try.success(session)
+      Try.success(it.computeIfAbsent(name, { Session() }))
     }
   }
 
@@ -23,11 +17,11 @@ open class RaidSessions {
     return synchronized(sessions, { block(sessions) })
   }
 
-  fun closeSession(name: String): Try<Session> {
+  fun closeSession(name: String): Try<Session?> {
     return doWithSessions {
-      it.get(name).peek {
-        it.closedExplicitly = true
-        it.validUntil = now()
+      Option.of(it[name]).peek {
+        it?.closedExplicitly = true
+        it?.validUntil = now()
       }
     }.toTry()
   }
@@ -35,26 +29,23 @@ open class RaidSessions {
   fun attributeDamage(
       sessionName: String, user: String, damageProcessor: () -> Int): Try<Int> {
     return doWithSessions {
-      it.get(sessionName)
+      Option.of(it[sessionName])
           .orElse {
             if (sessionName.isNullOrBlank()) firstStillValidSession() else Option.none()
           }
           .map {
-            val damagesByUsers = it.damagesByUsers
             val damage = damageProcessor.invoke()
-            it.damagesByUsers = damagesByUsers.get(user)
-                .orElse { Option.of(List.empty()) }
-                .map { damagesByUsers.put(user, it.push(damage)) }
-                .get()
+            it!!.damagesByUsers.computeIfAbsent(user, { arrayListOf<Int>() }) + damage
             damage
           }
     }.toTry()
   }
 
   private fun firstStillValidSession(): Option<Session> {
-    return sessions
-        .filter { _, s -> s.validUntil.isAfter(now()) }
-        .headOption().map { it._2 }
+    val session = sessions
+        .filter { e -> e.value.validUntil.isAfter(now()) }
+        .map { e -> e.value }.firstOrNull()
+    return Option.of(session)
   }
 
 }

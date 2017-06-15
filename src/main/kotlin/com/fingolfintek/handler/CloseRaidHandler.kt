@@ -1,7 +1,7 @@
 package com.fingolfintek.handler
 
 import com.fingolfintek.bot.BotProperties
-import com.fingolfintek.session.RaidSessions
+import com.fingolfintek.session.ChannelSessions
 import com.fingolfintek.session.Session
 import net.dv8tion.jda.core.entities.Message
 import org.springframework.stereotype.Component
@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 @Component
 open class CloseRaidHandler(
-    val properties: BotProperties, val raidSessions: RaidSessions) : MessageHandler {
+    val properties: BotProperties, val raidSessions: ChannelSessions) : MessageHandler {
 
   private val messageRegex = "!r(?:aid) (\\w+) (close|stop)".toRegex()
 
@@ -25,9 +25,11 @@ open class CloseRaidHandler(
 
   private fun closeRaidSessionFor(message: Message) {
     val name = resolveMessageNameFor(message)
-    raidSessions.closeSession(name)
-        .onSuccess { sendRaidReportMessageFor(message, it) }
-        .onFailure { sendFailureMessageFor(message) }
+    raidSessions.doWithSessions(message, {
+      it.closeSession(name)
+          .onSuccess { sendRaidReportMessageFor(message, it!!) }
+          .onFailure { sendFailureMessageFor(message) }
+    })
   }
 
   private fun sendRaidReportMessageFor(message: Message, session: Session) {
@@ -43,10 +45,9 @@ open class CloseRaidHandler(
       messageRegex.replace(message.content, "$1").toUpperCase()
 
   private fun exportDamagesToCsv(session: Session): ByteArray {
-    return session.damagesByUsers.toStream()
-        .flatMap { t -> t._2.map { "${t._1},$it" } }
-        .prepend("User,Damage done")
-        .mkString("\n").toByteArray()
+    return session.damagesByUsers
+        .flatMap { t -> t.value.map { "${t.key},$it" } }
+        .joinToString("\n", "User,Damage done").toByteArray()
   }
 
   private fun sendActionUnauthorizedMessageFor(message: Message) {

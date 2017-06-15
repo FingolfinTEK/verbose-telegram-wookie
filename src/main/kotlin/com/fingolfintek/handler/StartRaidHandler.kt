@@ -1,14 +1,14 @@
 package com.fingolfintek.handler
 
 import com.fingolfintek.bot.BotProperties
-import com.fingolfintek.session.RaidSessions
+import com.fingolfintek.session.ChannelSessions
 import com.fingolfintek.session.Session
 import net.dv8tion.jda.core.entities.Message
 import org.springframework.stereotype.Component
 
 @Component
 open class StartRaidHandler(
-    val properties: BotProperties, val raidSessions: RaidSessions) : MessageHandler {
+    val properties: BotProperties, val raidSessions: ChannelSessions) : MessageHandler {
 
   private val messageRegex = "!r(?:aid)? (\\w+) start".toRegex()
 
@@ -27,9 +27,11 @@ open class StartRaidHandler(
 
   private fun startRaidSessionFor(message: Message) {
     val name = resolveMessageNameFor(message)
-    raidSessions.startSession(name)
-        .onSuccess { sendRaidStartedMessageFor(message, it) }
-        .onFailure { sendFailureMessageFor(message) }
+    raidSessions.doWithSessions(message, {
+      it.startSession(name)
+          .onSuccess { sendRaidStartedMessageFor(message, it) }
+          .onFailure { sendFailureMessageFor(message) }
+    })
   }
 
   private fun sendRaidStartedMessageFor(message: Message, session: Session) {

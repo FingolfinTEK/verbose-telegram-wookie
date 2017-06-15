@@ -1,14 +1,14 @@
 package com.fingolfintek.handler
 
 import com.fingolfintek.ocr.TotalDamageResolver
-import com.fingolfintek.session.RaidSessions
+import com.fingolfintek.session.ChannelSessions
 import net.dv8tion.jda.core.entities.EmbedType
 import net.dv8tion.jda.core.entities.Message
 import org.springframework.stereotype.Component
 
 @Component
 open class EmbedDamageResolvingHandler(
-    raidSessions: RaidSessions, damageResolver: TotalDamageResolver)
+    raidSessions: ChannelSessions, damageResolver: TotalDamageResolver)
   : BaseDamageResolvingHandler(raidSessions, damageResolver) {
 
   override fun isApplicableTo(message: Message): Boolean =
