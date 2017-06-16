@@ -1,12 +1,15 @@
 package com.fingolfintek.bot
 
-@org.springframework.boot.context.properties.ConfigurationProperties("discord.bot")
+import org.springframework.boot.context.properties.ConfigurationProperties
+import javax.annotation.PostConstruct
+
+@ConfigurationProperties("discord.bot")
 open class BotProperties {
   var token = ""
   var officerRegexPattern = "officer|leader"
   private lateinit var officerRegex: Regex
 
-  @javax.annotation.PostConstruct
+  @PostConstruct
   private fun initialize() {
     officerRegex = officerRegexPattern.toRegex(RegexOption.IGNORE_CASE)
   }
