@@ -5,7 +5,7 @@ import io.vavr.control.Try
 import java.time.ZonedDateTime.now
 
 open class RaidSessions(raids: Map<String, Session> = HashMap()) {
-  var sessions: LinkedHashMap<String, Session> = LinkedHashMap(raids)
+  private var sessions: LinkedHashMap<String, Session> = LinkedHashMap(raids)
 
   fun startSession(name: String): Try<Session> {
     return doWithSessions {

@@ -1,1 +1,1 @@
-worker: java -jar -Dspring.profiles.active=cloud target/discord-raid-bot-kotlin-1.0-SNAPSHOT.jar
+worker: java -jar -Dspring.profiles.active=cloud target/swgoh-discord-raid-damage-bot-1.0-SNAPSHOT.jar

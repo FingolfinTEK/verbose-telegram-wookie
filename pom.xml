@@ -6,11 +6,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.fingolfintek</groupId>
-    <artifactId>discord-raid-bot-kotlin</artifactId>
+    <artifactId>swgoh-discord-raid-damage-bot</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>discord-raid-bot-kotlin</name>
+    <name>swgoh-discord-raid-damage-bot</name>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

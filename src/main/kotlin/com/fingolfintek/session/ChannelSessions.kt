@@ -1,5 +1,8 @@
 package com.fingolfintek.session
 
+import com.fingolfintek.session.redis.RaidsRepository
+import com.fingolfintek.session.redis.RedisChannelSessions
+import com.fingolfintek.session.redis.RedisRaidSession
 import io.vavr.Tuple
 import io.vavr.collection.Map
 import io.vavr.collection.Stream
@@ -32,13 +35,20 @@ open class ChannelSessions(val repository: RaidsRepository) {
   }
 
   private fun persist(channel: String, raids: RaidSessions) {
-    repository.save(RedisRaidSessions(channel, raids))
+    repository.save(RedisChannelSessions(channel, raids))
   }
 
   @PostConstruct
   private fun initFromRedis() {
     sessions = Stream.ofAll(repository.findAll())
-        .toMap { Tuple.of(it.channel, it.sessions) }
+        .toMap { Tuple.of(it.channel, toRaidSessions(it.sessions)) }
+  }
+
+  private fun toRaidSessions(sessionsFromDb: List<RedisRaidSession>): RaidSessions {
+    val sessions = Stream.ofAll(sessionsFromDb)
+        .toMap { Tuple.of(it.channelAndName.split("&&")[1], it.toSession()) }
+        .toJavaMap()
+    return RaidSessions(sessions)
   }
 
 }
