@@ -15,7 +15,7 @@ open class TotalDamageResolver {
   private val DATA_LOCATION =
       "https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata"
 
-  lateinit var tessData: File
+  private lateinit var tessData: File
 
   @PostConstruct
   fun initialize() {

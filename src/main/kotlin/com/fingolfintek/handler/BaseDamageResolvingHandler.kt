@@ -8,7 +8,8 @@ import java.io.File
 import java.net.URL
 
 abstract class BaseDamageResolvingHandler(
-    val raidSessions: ChannelSessions, val damageResolver: TotalDamageResolver) : MessageHandler {
+    private val raidSessions: ChannelSessions,
+    private val damageResolver: TotalDamageResolver) : MessageHandler {
 
   private val mozzilaAgent =
       "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) " +

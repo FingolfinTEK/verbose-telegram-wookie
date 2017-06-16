@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component
 
 @Component
 open class StartRaidHandler(
-    val properties: BotProperties, val raidSessions: ChannelSessions) : MessageHandler {
+    private val properties: BotProperties,
+    private val raidSessions: ChannelSessions) : MessageHandler {
 
   private val messageRegex = "!r(?:aid)? (\\w+) start".toRegex()
 

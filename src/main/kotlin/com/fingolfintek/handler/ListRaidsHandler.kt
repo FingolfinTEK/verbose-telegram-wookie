@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.entities.Message
 import org.springframework.stereotype.Component
 
 @Component
-open class ListRaidsHandler(val raidSessions: ChannelSessions) : MessageHandler {
+open class ListRaidsHandler(private val raidSessions: ChannelSessions) : MessageHandler {
 
   private val messageRegex = "!r(aid)? (list|show)( all)?".toRegex()
 

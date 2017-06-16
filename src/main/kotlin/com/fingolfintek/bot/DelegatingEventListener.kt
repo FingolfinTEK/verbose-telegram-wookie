@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 open class DelegatingEventListener(
-    val handlers: List<MessageHandler>) : ListenerAdapter() {
+    private val handlers: List<MessageHandler>) : ListenerAdapter() {
 
   override fun onMessageReceived(event: MessageReceivedEvent) {
     handlers.forEach { it.handle(event.message) }

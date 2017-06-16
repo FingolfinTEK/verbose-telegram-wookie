@@ -1,8 +1,6 @@
 package com.fingolfintek.session
 
-import com.fingolfintek.session.redis.RaidsRepository
-import com.fingolfintek.session.redis.RedisChannelSessions
-import com.fingolfintek.session.redis.RedisRaidSession
+import com.fingolfintek.session.redis.*
 import io.vavr.Tuple
 import io.vavr.collection.Map
 import io.vavr.collection.Stream
@@ -11,7 +9,9 @@ import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
 @Component
-open class ChannelSessions(val repository: RaidsRepository) {
+open class ChannelSessions(
+    private val raidsRepository: RaidsRepository,
+    private val sessionsRepository: RaidSessionsRepository) {
 
   private lateinit var sessions: Map<String, RaidSessions>
 
@@ -35,17 +35,18 @@ open class ChannelSessions(val repository: RaidsRepository) {
   }
 
   private fun persist(channel: String, raids: RaidSessions) {
-    repository.save(RedisChannelSessions(channel, raids))
+    val redisRaids = sessionsRepository.save(fromRaidSessions(channel, raids))
+    raidsRepository.save(RedisChannelSessions(channel, redisRaids.toList()))
   }
 
   @PostConstruct
   private fun initFromRedis() {
-    sessions = Stream.ofAll(repository.findAll())
+    sessions = Stream.ofAll(raidsRepository.findAll())
         .toMap { Tuple.of(it.channel, toRaidSessions(it.sessions)) }
   }
 
-  private fun toRaidSessions(sessionsFromDb: List<RedisRaidSession>): RaidSessions {
-    val sessions = Stream.ofAll(sessionsFromDb)
+  private fun toRaidSessions(sessionsFromDb: List<RedisRaidSession>?): RaidSessions {
+    val sessions = Stream.ofAll(sessionsFromDb ?: emptyList())
         .toMap { Tuple.of(it.channelAndName.split("&&")[1], it.toSession()) }
         .toJavaMap()
     return RaidSessions(sessions)

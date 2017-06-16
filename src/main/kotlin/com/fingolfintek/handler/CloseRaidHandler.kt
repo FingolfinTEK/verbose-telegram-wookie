@@ -9,7 +9,8 @@ import java.time.LocalDate
 
 @Component
 open class CloseRaidHandler(
-    val properties: BotProperties, val raidSessions: ChannelSessions) : MessageHandler {
+    private val properties: BotProperties,
+    private val raidSessions: ChannelSessions) : MessageHandler {
 
   private val messageRegex = "!r(?:aid) (\\w+) (close|stop)".toRegex()
 
