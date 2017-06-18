@@ -22,10 +22,8 @@ open class ChannelSessions(
 
   private fun doWithSessions(channel: String, processor: (RaidSessions) -> Any) {
     createSessionsForChannelIfNeeded(channel)
-    sessions.get(channel).peek {
-      processor(it)
-      persist(channel, it)
-    }
+    sessions.get(channel).peek { processor(it) }
+    sessions.get(channel).peek { persist(channel, it) }
   }
 
   private fun createSessionsForChannelIfNeeded(channel: String) {
