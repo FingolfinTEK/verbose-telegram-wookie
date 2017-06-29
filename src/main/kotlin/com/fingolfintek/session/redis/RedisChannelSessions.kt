@@ -7,4 +7,4 @@ import org.springframework.data.redis.core.RedisHash
 @RedisHash("raids")
 class RedisChannelSessions(
     @Id val channel: String,
-    @Reference val sessions: List<RedisRaidSession>? = ArrayList())
+    @Reference val sessions: List<RedisChannelRaid>? = ArrayList())
