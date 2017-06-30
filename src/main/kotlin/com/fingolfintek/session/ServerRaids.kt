@@ -14,6 +14,17 @@ open class ServerRaids(
 
   private lateinit var sessions: Map<String, ChannelRaids>
 
+  fun removeAllExplicitlyClosedRaids() {
+    doWithChannelRaids({ _, channelRaids ->
+      channelRaids.doWithRaids { raids ->
+        raids.filter { (_, raid) -> raid.closedExplicitly }
+            .forEach({ (_, raid) ->
+              raids.remove(raid.raidName)
+            })
+      }
+    })
+  }
+
   fun doWithChannelRaids(processor: (String, ChannelRaids) -> Any) {
     sessions.forEach {
       processor(it._1, it._2)
@@ -36,7 +47,7 @@ open class ServerRaids(
 
   private fun persist(channel: String, raids: ChannelRaids) {
     val redisRaids = channelRaidsRepository.save(fromChannelRaids(channel, raids))
-    serverRaidsRepository.save(RedisChannelSessions(channel, redisRaids.toList()))
+    serverRaidsRepository.save(RedisChannelSessions(channel, redisRaids.toMutableList()))
   }
 
   @PostConstruct

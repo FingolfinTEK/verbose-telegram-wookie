@@ -3,31 +3,43 @@ package com.fingolfintek.service
 import com.fingolfintek.bot.Messenger
 import com.fingolfintek.session.ServerRaids
 import com.fingolfintek.session.redis.ChannelRaidsRepository
+import com.fingolfintek.session.redis.RedisChannelSessions
+import com.fingolfintek.session.redis.ServerRaidsRepository
+import io.vavr.collection.Stream
+import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.ZonedDateTime
 
-const val SESSION_EXPIRY_TASK_DELAY_MILLIS = 300000L
+const val SESSION_EXPIRY_TASK_DELAY_MILLIS = 30000L
 
 @Component
 open class RaidService(
     private val messenger: Messenger,
     private val serverRaids: ServerRaids,
+    private val serverRaidsRepository: ServerRaidsRepository,
     private val channelRaidsRepository: ChannelRaidsRepository) {
+
+  private val logger = LoggerFactory.getLogger(javaClass)
 
   fun startRaidFor(channelId: String, raidName: String) {
     serverRaids.doWithChannelRaids(channelId, {
       it.startRaidWithName(raidName)
           .onSuccess { messenger.sendRaidStartedMessageFor(channelId, it) }
-          .onFailure { messenger.sendFailureMessageFor(channelId) }
+          .onFailure { sendFailureMessageFor(channelId, it) }
     })
+  }
+
+  private fun sendFailureMessageFor(channelId: String, it: Throwable) {
+    logger.error("Error performing action", it)
+    messenger.sendFailureMessageFor(channelId)
   }
 
   fun closeRaidFor(channelId: String, name: String) {
     serverRaids.doWithChannelRaids(channelId, {
       it.closeRaidWithName(name)
           .onSuccess { messenger.sendRaidReportMessageFor(channelId, it!!) }
-          .onFailure { messenger.sendFailureMessageFor(channelId) }
+          .onFailure { sendFailureMessageFor(channelId, it) }
     })
   }
 
@@ -55,14 +67,24 @@ open class RaidService(
 
   @Scheduled(fixedDelay = SESSION_EXPIRY_TASK_DELAY_MILLIS)
   fun deleteExplicitlyClosedSessions() {
-    serverRaids.doWithChannelRaids({ _, channelRaids ->
-      channelRaids.doWithRaids { raids ->
-        raids.filter { (_, raid) -> raid.closedExplicitly }
-            .forEach({ (_, raid) ->
-              raids.remove(raid.raidName)
-              channelRaidsRepository.deleteAllByClosedExplicitly(true)
-            })
-      }
-    })
+    serverRaids.removeAllExplicitlyClosedRaids()
+    deleteAllExplicitlyClosedRaidsFromDb()
+  }
+
+  private fun deleteAllExplicitlyClosedRaidsFromDb() {
+    serverRaidsRepository.findAll()
+        .forEach { deleteAllExplicitlyClosedRaidsFromDbFor(it) }
+  }
+
+  private fun deleteAllExplicitlyClosedRaidsFromDbFor(channel: RedisChannelSessions) {
+    val closedRaids = Stream.ofAll(channel.sessions ?: emptyList())
+        .filter { it.closedExplicitly }
+        .peek { channelRaidsRepository.delete(it) }
+        .toList()
+
+    if (closedRaids.nonEmpty()) {
+      channel.sessions?.removeAll(closedRaids)
+      serverRaidsRepository.save(channel)
+    }
   }
 }

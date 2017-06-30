@@ -39,9 +39,11 @@ open class Messenger(private val jda: JDA) {
       sendMessage(channelId, "Sorry, I experienced an error and could not do what you asked!")
 
   fun sendRaidListMessageFor(channelId: String, sessions: LinkedHashMap<String, Raid>) {
-    val raidReport = sessions.values.map {
-      "${it.raidName} - users registered: ${it.damagesByUsers.size}, ends ${it.validUntil}"
-    }.joinToString("\n")
+    val raidReport = sessions.values
+        .filter { !it.closedExplicitly }
+        .map {
+          "${it.raidName} - users registered: ${it.damagesByUsers.size}, ends ${it.validUntil}"
+        }.joinToString("\n")
     return sendMessage(channelId, "Active raids:\n$raidReport")
   }
 

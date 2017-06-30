@@ -33,7 +33,7 @@ open class ChannelRaids(raids: Map<String, Raid> = HashMap()) {
           .orElse { if (raidName.isNullOrBlank()) firstStillValidRaid() else Option.none() }
           .map {
             val damage = damageProcessor.invoke()
-            it!!.damagesByUsers.computeIfAbsent(user, { arrayListOf<Int>() }) + damage
+            it!!.attributeDamageFor(user, damage)
             damage
           }
     }.toTry()
