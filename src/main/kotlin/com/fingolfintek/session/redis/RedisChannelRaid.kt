@@ -22,9 +22,9 @@ open class RedisChannelRaid(
   constructor(name: String, s: Raid = Raid(name)) :
       this(name, s.createdOn, s.validUntil, s.damagesByUsers, s.closedExplicitly)
 
-  fun toSession() = Raid(raidName(), createdOn, validUntil, damagesByUsers, closedExplicitly)
+  fun raidName() = channelAndName.split("&&")[1]
 
-  private fun raidName() = channelAndName.split("$$")[1]
+  fun toSession() = Raid(raidName(), createdOn, validUntil, damagesByUsers, closedExplicitly)
 }
 
 fun fromChannelRaids(channel: String, channelRaids: ChannelRaids): List<RedisChannelRaid> {

@@ -47,7 +47,7 @@ open class ServerRaids(
 
   private fun toRaidSessions(sessionsFromDb: List<RedisChannelRaid>?): ChannelRaids {
     val sessions = Stream.ofAll(sessionsFromDb ?: emptyList())
-        .toMap { Tuple.of(it.channelAndName.split("&&")[1], it.toSession()) }
+        .toMap { Tuple.of(it.raidName(), it.toSession()) }
         .toJavaMap()
     return ChannelRaids(sessions)
   }
