@@ -1,4 +1,4 @@
-package com.fingolfintek.handler
+package com.fingolfintek.bot.handler
 
 import com.fingolfintek.service.RaidService
 import net.dv8tion.jda.core.entities.Message

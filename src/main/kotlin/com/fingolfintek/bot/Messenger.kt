@@ -1,6 +1,6 @@
 package com.fingolfintek.bot
 
-import com.fingolfintek.session.Raid
+import com.fingolfintek.model.Raid
 import net.dv8tion.jda.core.JDA
 import org.springframework.stereotype.Component
 import java.time.LocalDate

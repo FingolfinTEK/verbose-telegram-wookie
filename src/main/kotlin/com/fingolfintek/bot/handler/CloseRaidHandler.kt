@@ -1,4 +1,4 @@
-package com.fingolfintek.handler
+package com.fingolfintek.bot.handler
 
 import com.fingolfintek.bot.BotProperties
 import com.fingolfintek.bot.Messenger
@@ -7,27 +7,28 @@ import net.dv8tion.jda.core.entities.Message
 import org.springframework.stereotype.Component
 
 @Component
-open class StartRaidHandler(
+open class CloseRaidHandler(
     private val properties: BotProperties,
     private val messenger: Messenger,
     private val raidService: RaidService) : MessageHandler {
 
-  private val messageRegex = "!r(?:aid)? (\\w+) start".toRegex()
+  private val messageRegex = "!r(?:aid)? (\\w+) (close|stop)".toRegex()
 
   override fun isApplicableTo(message: Message): Boolean =
       message.content.matches(messageRegex)
 
   override fun processMessage(message: Message) {
     when {
-      properties.isAuthorAnOfficer(message) -> startRaidSessionFor(message)
+      properties.isAuthorAnOfficer(message) -> closeRaidSessionFor(message)
       else -> messenger.sendActionUnauthorizedMessageFor(message.channel.id)
     }
   }
 
-  private fun startRaidSessionFor(message: Message) =
-      raidService.startRaidFor(message.channel.id, resolveRaidNameFor(message))
+  private fun closeRaidSessionFor(message: Message) {
+    val name = resolveMessageNameFor(message)
+    raidService.closeRaidFor(message.channel.id, name)
+  }
 
-  private fun resolveRaidNameFor(message: Message) =
+  private fun resolveMessageNameFor(message: Message) =
       messageRegex.replace(message.content, "$1").toUpperCase()
-
 }

@@ -1,8 +1,8 @@
-package com.fingolfintek.handler
+package com.fingolfintek.bot.handler
 
 import com.fingolfintek.bot.Messenger
 import com.fingolfintek.ocr.TotalDamageResolver
-import com.fingolfintek.session.ServerRaids
+import com.fingolfintek.model.ServerRaids
 import net.dv8tion.jda.core.entities.EmbedType
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.entities.MessageEmbed

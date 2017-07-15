@@ -1,4 +1,4 @@
-package com.fingolfintek.handler
+package com.fingolfintek.bot.handler
 
 import io.vavr.control.Option
 import io.vavr.control.Try

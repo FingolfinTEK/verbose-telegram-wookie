@@ -1,10 +1,10 @@
 package com.fingolfintek.service
 
 import com.fingolfintek.bot.Messenger
-import com.fingolfintek.session.ServerRaids
-import com.fingolfintek.session.redis.ChannelRaidsRepository
-import com.fingolfintek.session.redis.RedisChannelSessions
-import com.fingolfintek.session.redis.ServerRaidsRepository
+import com.fingolfintek.model.ServerRaids
+import com.fingolfintek.model.redis.ChannelRaidsRepository
+import com.fingolfintek.model.redis.RedisChannelSessions
+import com.fingolfintek.model.redis.ServerRaidsRepository
 import io.vavr.collection.Stream
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
