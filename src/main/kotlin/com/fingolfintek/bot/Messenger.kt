@@ -23,7 +23,7 @@ open class Messenger(private val jda: JDA) {
   private fun exportDamagesToCsv(raid: Raid): ByteArray =
       raid.damagesByUsers
           .flatMap { t -> t.value.map { "${t.key},$it" } }
-          .joinToString("\n", "User,Damage done")
+          .joinToString("\n", "User,Damage done\n")
           .toByteArray()
 
   fun sendUnknownRaidMessageFor(channelId: String, raidName: String) {

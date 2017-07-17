@@ -1,6 +1,10 @@
 package com.fingolfintek.model
 
-import com.fingolfintek.model.redis.*
+import com.fingolfintek.model.redis.RedisChannelRaids
+import com.fingolfintek.model.redis.RedisRaid
+import com.fingolfintek.model.redis.fromChannelRaids
+import com.fingolfintek.repository.ChannelRaidsRepository
+import com.fingolfintek.repository.ServerRaidsRepository
 import io.vavr.Tuple
 import io.vavr.collection.Map
 import io.vavr.collection.Stream
@@ -47,7 +51,7 @@ open class ServerRaids(
 
   private fun persist(channel: String, raids: ChannelRaids) {
     val redisRaids = channelRaidsRepository.save(fromChannelRaids(channel, raids))
-    serverRaidsRepository.save(RedisChannelSessions(channel, redisRaids.toMutableList()))
+    serverRaidsRepository.save(RedisChannelRaids(channel, redisRaids.toMutableList()))
   }
 
   @PostConstruct
@@ -56,9 +60,9 @@ open class ServerRaids(
         .toMap { Tuple.of(it.channel, toChannelRaids(it.sessions)) }
   }
 
-  private fun toChannelRaids(raidsFromDb: List<RedisChannelRaid>?): ChannelRaids {
+  private fun toChannelRaids(raidsFromDb: List<RedisRaid>?): ChannelRaids {
     val raids = Stream.ofAll(raidsFromDb ?: emptyList())
-        .toMap { Tuple.of(it.raidName(), it.toSession()) }
+        .toMap { Tuple.of(it.raidName(), it.toRaid()) }
         .toJavaMap()
     return ChannelRaids(raids)
   }
