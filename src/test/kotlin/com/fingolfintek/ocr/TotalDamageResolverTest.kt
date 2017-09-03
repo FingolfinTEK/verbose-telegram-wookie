@@ -20,6 +20,7 @@ class TotalDamageResolverTest {
     expectDamageForImage("/screenshot_2.png", 9590)
     expectDamageForImage("/screenshot_3.png", 9456)
     expectDamageForImage("/screenshot_4.jpeg", 8579)
+    expectDamageForImage("/screenshot_5.png", 16040)
   }
 
   private fun expectDamageForImage(path: String, expectedDamage: Int) {

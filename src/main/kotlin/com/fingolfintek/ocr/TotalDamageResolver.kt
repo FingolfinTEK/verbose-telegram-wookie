@@ -26,18 +26,22 @@ open class TotalDamageResolver {
     tessData.deleteOnExit()
   }
 
-  fun lept.PIX.cleanup() = lept.pixDestroy(this)
+  private fun lept.PIX.cleanup() = lept.pixDestroy(this)
 
-  fun lept.PIX.imageWithoutContinueButton(): lept.PIX =
+  private fun lept.PIX.imageWithoutContinueButton(): lept.PIX =
       lept.pixRemoveBorderToSize(this, this.w(), this.h() / 3)
 
-  fun lept.PIX.scaledForOCR(): lept.PIX = when {
-    this.w() < 1000 -> lept.pixScaleColor4xLI(this)
-    this.w() < 2000 -> lept.pixScaleColor2xLI(this)
-    else -> this
+  private fun lept.PIX.resolution(): Int = this.w() * this.h()
+
+  private fun lept.PIX.scaledForOCR(): lept.PIX {
+    val scale = 4_000_000f / this.resolution()
+    return if (this.w() < 2048)
+      lept.pixScaleColorLI(this, scale, scale)
+    else this
   }
 
-  fun lept.PIX.asBlackAndWhite(): lept.PIX =
+
+  private fun lept.PIX.asBlackAndWhite(): lept.PIX =
       lept.pixConvertTo1(this, 128)
 
   fun resolveDamageFrom(imagePath: String): Int {
